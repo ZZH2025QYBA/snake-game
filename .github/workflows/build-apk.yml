@@ -18,27 +18,21 @@ jobs:
       with:
         python-version: '3.8'
     
-    - name: Set up JDK 11
+    - name: Set up JDK 8
       uses: actions/setup-java@v3
       with:
-        java-version: '11'
+        java-version: '8'
         distribution: 'temurin'
     
-    - name: Install Android SDK
-      uses: android-actions/setup-android@v3
-      with:
-        api-level: 29
-        build-tools: 29.0.3
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v2
     
-    - name: Install system dependencies
+    - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y python3-pip python3-setuptools git zip unzip openjdk-11-jdk python3-dev build-essential libssl-dev libffi-dev libxml2-dev libxslt1-dev libjpeg8-dev zlib1g-dev
-    
-    - name: Install Python dependencies
-      run: |
-        pip3 install --user --upgrade Cython==0.29.33 virtualenv
-        pip3 install --user buildozer
+        sudo apt-get install -y python3-pip build-essential git zip unzip
+        pip3 install --upgrade pip
+        pip3 install buildozer cython==0.29.33
     
     - name: Create buildozer.spec
       run: |
@@ -56,22 +50,17 @@ jobs:
         log_level = 2
         
         [app:android]
-        android.api = 29
+        android.api = 28
         android.minapi = 21
-        android.ndk = 21e
-        android.sdk = 29
-        android.permissions = INTERNET
+        android.ndk = 19b
+        android.sdk = 28
         android.debug = 1
         android.accept_sdk_license = True
         EOF
     
-    - name: Accept SDK licenses
-      run: |
-        yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-    
     - name: Build APK
       run: |
-        export PATH=$PATH:~/.local/bin
+        export ANDROIDSDK=$ANDROID_SDK_ROOT
         buildozer android debug
     
     - name: Upload APK
