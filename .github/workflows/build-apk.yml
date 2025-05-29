@@ -7,49 +7,13 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
+    container:
+      image: kivy/buildozer:latest
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-    
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
-    
-    - name: Install system dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          build-essential \
-          git \
-          python3-dev \
-          ffmpeg \
-          libsdl2-dev \
-          libsdl2-image-dev \
-          libsdl2-mixer-dev \
-          libsdl2-ttf-dev \
-          libportmidi-dev \
-          libswscale-dev \
-          libavformat-dev \
-          libavcodec-dev \
-          zlib1g-dev \
-          openjdk-11-jdk \
-          autoconf \
-          libtool \
-          pkg-config \
-          libncurses5-dev \
-          libncursesw5-dev \
-          libtinfo6 \
-          unzip \
-          zip \
-          ant
-    
-    - name: Install Python dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install buildozer cython
     
     - name: Create buildozer.spec
       run: |
@@ -67,18 +31,17 @@ jobs:
         log_level = 2
         
         [app:android]
-        android.api = 33
+        android.api = 28
         android.minapi = 21
-        android.ndk = 25c
-        android.sdk = 33
+        android.ndk = 19b
+        android.sdk = 28
         android.permissions = INTERNET
         android.debug = 1
         android.accept_sdk_license = True
         EOF
     
-    - name: Build APK with Buildozer
-      run: |
-        buildozer android debug
+    - name: Build APK
+      run: buildozer android debug
     
     - name: Upload APK
       uses: actions/upload-artifact@v4
